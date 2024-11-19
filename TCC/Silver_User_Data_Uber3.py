@@ -5,14 +5,14 @@ from pyspark.sql import *
 
 # COMMAND ----------
 
-df_uber = spark.sql("""
+df_uber3 = spark.sql("""
                     SELECT *
                     FROM tcc_bronze.data_uber_user3
                     """)
 
 # COMMAND ----------
 
-df_uber = (df_uber.withColumnRenamed('city', 'Cidade')
+df_uber3 = (df_uber3.withColumnRenamed('city', 'Cidade')
                   .withColumnRenamed('product_type', 'TipoProduto')
                   .withColumnRenamed('status', 'StatusCorrida')
                   .withColumnRenamed('request_time', 'DataSolicitacao')
@@ -31,7 +31,7 @@ df_uber = (df_uber.withColumnRenamed('city', 'Cidade')
 
 # COMMAND ----------
 
-df_uber = (df_uber.withColumn("DataSolicitacao", expr("substr(DataSolicitacao,1,19)"))
+df_uber3 = (df_uber3.withColumn("DataSolicitacao", expr("substr(DataSolicitacao,1,19)"))
                   .withColumn("DataInicioViagem", expr("substr(DataInicioViagem,1,19)"))
                   .withColumn("DataFimViagem", expr("substr(DataFimViagem,1,19)"))
            )
@@ -39,7 +39,7 @@ df_uber = (df_uber.withColumn("DataSolicitacao", expr("substr(DataSolicitacao,1,
 
 # COMMAND ----------
 
-df_uber = (df_uber.withColumn("DataSolicitacao", col("DataSolicitacao").cast("timestamp")) 
+df_uber3 = (df_uber3.withColumn("DataSolicitacao", col("DataSolicitacao").cast("timestamp")) 
 .withColumn("DataInicioViagem", col("DataInicioViagem").cast("timestamp")) 
 .withColumn("DataFimViagem", col("DataFimViagem").cast("timestamp"))
 .withColumn("DistanciaPercorridaEmMilhas", col("DistanciaPercorridaEmMilhas").cast("float")) 
@@ -48,32 +48,32 @@ df_uber = (df_uber.withColumn("DataSolicitacao", col("DataSolicitacao").cast("ti
 
 # COMMAND ----------
 
-df_uber = (df_uber.withColumn("AnoViagem", year(df_uber.DataSolicitacao))
-.withColumn("MesVaigem", month(df_uber.DataSolicitacao))
-.withColumn("DiaViagem", dayofyear(df_uber.DataSolicitacao))
-.withColumn("DiaPorExtenso", date_format(df_uber.DataSolicitacao, "EEEE"))
+df_uber3 = (df_uber3.withColumn("AnoViagem", year(df_uber3.DataSolicitacao))
+.withColumn("MesVaigem", month(df_uber3.DataSolicitacao))
+.withColumn("DiaViagem", dayofyear(df_uber3.DataSolicitacao))
+.withColumn("DiaPorExtenso", date_format(df_uber3.DataSolicitacao, "EEEE"))
            )
 
 # COMMAND ----------
 
-df_uber.printSchema()
+df_uber3.printSchema()
 
 # COMMAND ----------
 
-df_uber = df_uber.withColumn("TempoDeEsperaViagem", col('DataInicioViagem').cast("long") - col('DataSolicitacao').cast("long")) 
+df_uber3 = df_uber3.withColumn("TempoDeEsperaViagem", col('DataInicioViagem').cast("long") - col('DataSolicitacao').cast("long")) 
 
 
 
 # COMMAND ----------
 
 # DBTITLE 1,r
-df_uber = df_uber.withColumn("TempoDeEsperaViagem", col('TempoDeEsperaViagem') /60)
-df_uber = df_uber.withColumn("TempoDeEsperaViagem", format_number(col("TempoDeEsperaViagem"), 2))
-display(df_uber)
+df_uber3 = df_uber3.withColumn("TempoDeEsperaViagem", col('TempoDeEsperaViagem') /60)
+df_uber3 = df_uber3.withColumn("TempoDeEsperaViagem", format_number(col("TempoDeEsperaViagem"), 2))
+display(df_uber3)
 
 # COMMAND ----------
 
-df_uber = (df_uber.withColumn("DiaDaSemana", when(col("DiaPorExtenso")=="Sunday", "Domingo")
+df_uber3 = (df_uber3.withColumn("DiaDaSemana", when(col("DiaPorExtenso")=="Sunday", "Domingo")
 .when(col("DiaPorExtenso")=="Monday","Segunda")
 .when(col("DiaPorExtenso")=="Tuesday","Terça") 
 .when(col("DiaPorExtenso")=="Wednesday","Quarta") 
@@ -84,11 +84,11 @@ df_uber = (df_uber.withColumn("DiaDaSemana", when(col("DiaPorExtenso")=="Sunday"
 
 # COMMAND ----------
 
-display(df_uber)
+display(df_uber3)
 
 # COMMAND ----------
 
-df_uber = (df_uber.withColumn("TipoProduto", when((col("TipoProduto")=="uberX") | (col("TipoProduto")=="UberX") | (col("TipoProduto")=="uberx") ,"Uber X")
+df_uber3 = (df_uber3.withColumn("TipoProduto", when((col("TipoProduto")=="uberX") | (col("TipoProduto")=="UberX") | (col("TipoProduto")=="uberx") ,"Uber X")
 .when((col("TipoProduto")=="Comfort Planet") | (col("TipoProduto")=="Comfort") , "Uber Comfort")
 .when((col("TipoProduto")=="SELECT") | (col("TipoProduto")=="Select") | (col("TipoProduto")=="UberSELECT") , "Uber Select")
 .when(col("TipoProduto")=="Moto","Uber Moto") 
@@ -101,60 +101,60 @@ df_uber = (df_uber.withColumn("TipoProduto", when((col("TipoProduto")=="uberX") 
 .when(col("TipoProduto")=="UberVIP","Uber Vip")
 .when(col("TipoProduto")=="null","Não informado")))
 
-display(df_uber)
+display(df_uber3)
 
 # COMMAND ----------
 
-df_uber = df_uber.withColumn("DistanciaPercorridaEmKM", col("DistanciaPercorridaEmMilhas") * 1.60934) 
-df_uber = df_uber.drop('DistanciaPercorridaEmMilhas')
-df_uber = df_uber.drop('DiaPorExtenso')
+df_uber3 = df_uber3.withColumn("DistanciaPercorridaEmKM", col("DistanciaPercorridaEmMilhas") * 1.60934) 
+df_uber3 = df_uber3.drop('DistanciaPercorridaEmMilhas')
+df_uber3 = df_uber3.drop('DiaPorExtenso')
 
 # COMMAND ----------
 
-df_uber = (df_uber.withColumn("StatusCorrida", when(col("StatusCorrida")=="completed","Concluida")
+df_uber3 = (df_uber3.withColumn("StatusCorrida", when(col("StatusCorrida")=="completed","Concluida")
 .when(col("StatusCorrida")=="unfulfilled","Descartada")
 .when(col("StatusCorrida")=="rider_canceled","Cancelada") 
 .when(col("StatusCorrida")=="driver_canceled","Motorista Cancelou") 
 .when(col("StatusCorrida")=="fare_split","Corrida Dividida")))
-display(df_uber)
+display(df_uber3)
 
 # COMMAND ----------
 
 # Tratamento dos nulos
 
 # Data Inicio e Data Fim
-df_uber = df_uber.withColumn("DataSolicitacao",when(col("DataSolicitacao").isNull(), "9999-12-31 00:00:00").otherwise(col("DataSolicitacao")))
+df_uber3 = df_uber3.withColumn("DataSolicitacao",when(col("DataSolicitacao").isNull(), "9999-12-31 00:00:00").otherwise(col("DataSolicitacao")))
 
 # Data Inicio e Data Fim
-df_uber = df_uber.withColumn("DataInicioViagem",when(col("DataInicioViagem").isNull(), "9999-12-31 00:00:00").otherwise(col("DataInicioViagem")))
-df_uber = df_uber.withColumn("DataFimViagem",when(col("DataFimViagem").isNull(), "9999-12-31 00:00:00").otherwise(col("DataFimViagem")))
+df_uber3 = df_uber3.withColumn("DataInicioViagem",when(col("DataInicioViagem").isNull(), "9999-12-31 00:00:00").otherwise(col("DataInicioViagem")))
+df_uber3 = df_uber3.withColumn("DataFimViagem",when(col("DataFimViagem").isNull(), "9999-12-31 00:00:00").otherwise(col("DataFimViagem")))
 
 # LAT e LONG Inicio
-df_uber = (df_uber.withColumn("LatitudeInicioViagem", when(col("LatitudeInicioViagem").isNull(),"-1").otherwise(col("LatitudeInicioViagem"))))
-df_uber = (df_uber.withColumn("LongitudeInicioViagem", when(col("LongitudeInicioViagem").isNull(),"-1").otherwise(col("LongitudeInicioViagem"))))
+df_uber3 = (df_uber3.withColumn("LatitudeInicioViagem", when(col("LatitudeInicioViagem").isNull(),"-1").otherwise(col("LatitudeInicioViagem"))))
+df_uber3 = (df_uber3.withColumn("LongitudeInicioViagem", when(col("LongitudeInicioViagem").isNull(),"-1").otherwise(col("LongitudeInicioViagem"))))
 
 # LAT e LONG Fim
-df_uber = (df_uber.withColumn("LatitudeDestinoViagem", when(col("LatitudeDestinoViagem").isNull(),"-1").otherwise(col("LatitudeDestinoViagem"))))
-df_uber = (df_uber.withColumn("LongitudeDestinoViagem", when(col("LongitudeDestinoViagem").isNull(),"-1").otherwise(col("LongitudeDestinoViagem"))))
+df_uber3 = (df_uber3.withColumn("LatitudeDestinoViagem", when(col("LatitudeDestinoViagem").isNull(),"-1").otherwise(col("LatitudeDestinoViagem"))))
+df_uber3 = (df_uber3.withColumn("LongitudeDestinoViagem", when(col("LongitudeDestinoViagem").isNull(),"-1").otherwise(col("LongitudeDestinoViagem"))))
 
 # Endereços da Vaigem
-df_uber = (df_uber.withColumn("EnderecoInicioViagem", when(col("EnderecoInicioViagem").isNull(),"Endereço não Informado").otherwise(col("EnderecoInicioViagem"))))
-df_uber = (df_uber.withColumn("EnderecoDestinoViagem", when(col("EnderecoDestinoViagem").isNull(),"Endereço não Informado").otherwise(col("EnderecoDestinoViagem"))))
+df_uber3 = (df_uber3.withColumn("EnderecoInicioViagem", when(col("EnderecoInicioViagem").isNull(),"Endereço não Informado").otherwise(col("EnderecoInicioViagem"))))
+df_uber3 = (df_uber3.withColumn("EnderecoDestinoViagem", when(col("EnderecoDestinoViagem").isNull(),"Endereço não Informado").otherwise(col("EnderecoDestinoViagem"))))
 
 # Tipo do Produto
-df_uber = (df_uber.withColumn("Tipo Produto", when(col("Tipo Produto").isNull(),"Brazilian Real").otherwise(col("Tipo Produto"))))
+df_uber3 = (df_uber3.withColumn("Tipo Produto", when(col("Tipo Produto").isNull(),"Brazilian Real").otherwise(col("Tipo Produto"))))
 
 # Valor Pago
-df_uber = (df_uber.withColumn("ValorPago", when(col("ValorPago").isNull(),"-1").otherwise(col("ValorPago"))))
+df_uber3 = (df_uber3.withColumn("ValorPago", when(col("ValorPago").isNull(),"-1").otherwise(col("ValorPago"))))
 
 # TempoDeEsperaViagem
-df_uber = (df_uber.withColumn("TempoDeEsperaViagem", when(col("TempoDeEsperaViagem").isNull(),"-1").otherwise(col("TempoDeEsperaViagem"))))
+df_uber3 = (df_uber3.withColumn("TempoDeEsperaViagem", when(col("TempoDeEsperaViagem").isNull(),"-1").otherwise(col("TempoDeEsperaViagem"))))
 
-display(df_uber)
+display(df_uber3)
 
 # COMMAND ----------
 
-df_uber = df_uber.select(
+df_uber3 = df_uber3.select(
 'Cidade',
 'TipoProduto',
 'StatusCorrida',
@@ -170,11 +170,11 @@ df_uber = df_uber.select(
 
 # COMMAND ----------
 
-display(df_uber)
+display(df_uber3)
 
 # COMMAND ----------
 
 table = 'data_uber_user3'
 database_name = 'tcc_silver'
 
-df_uber.write.format("delta").saveAsTable(f"{database_name}.{table}")
+df_uber3.write.format("delta").saveAsTable(f"{database_name}.{table}")
