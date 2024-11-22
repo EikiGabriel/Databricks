@@ -11,8 +11,3 @@
 # MAGIC SELECT * FROM tcc_silver.data_uber_user4
 # MAGIC UNION ALL
 # MAGIC SELECT * FROM tcc_silver.data_uber_user5;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC DROP TABLE tcc_bronze.data_uber_user5

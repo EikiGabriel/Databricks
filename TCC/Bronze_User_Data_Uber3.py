@@ -8,7 +8,6 @@ df_uber3 = spark.read.csv(
     header=True,
     inferSchema=True
 )
-display(df_uber)
 
 # COMMAND ----------
 
